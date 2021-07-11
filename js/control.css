@@ -1,0 +1,35 @@
+div#control_board{
+    position: absolute;
+    height: 100%;
+    width: 25%;
+    top: 0%;
+    right: 0%;
+    background-color: rgb(243, 243, 243);
+    overflow-y: scroll;
+}
+
+h1{
+    font-size: 25px;
+    text-align: center;
+}
+h2{
+    font-size: 20px;
+    text-indent: 10px;
+}
+h3{
+    font-size: 15px;
+    text-indent: 20px;
+}
+
+input.input_range{
+    width: 90%;
+    margin-left: 5%;
+}
+input.input_text{
+    width: 90%;
+    margin-left: 5%;
+}
+button.control_button{
+    /* margin-top: 5%; */
+    margin-left: 5%;
+}
