@@ -200,7 +200,7 @@ node_info.append("button")
             current_center_node.fx = null
             current_center_node.fy = null
         }
-        if(current_center_node.name==current_clicked_node.name) return
+        if(current_center_node!=null && current_center_node.name==current_clicked_node.name) return
         current_center_node = current_clicked_node
         current_center_node.fx = width/2
         current_center_node.fy = force_height/2
@@ -341,3 +341,9 @@ function control_keywords(){
 
 }
 
+function autoConbine(node1, node2){
+    control_log.push({"type":"conbine", "target":[node1, node2]})
+    data_conbine[node2] = node1
+    data_keywordlist[node1].force_node.value += data_keywordlist[node2].force_node.value
+    data_keywordlist[node2].force_node.show = false
+}

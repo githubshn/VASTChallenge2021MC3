@@ -16,13 +16,13 @@ let data_locationlist = {
 }
 let data_keywordlist = {}
 
-let width = 1000, height = 600
+let width = document.body.clientWidth*0.74, height = document.body.clientHeight * 0.97
 let list_height = height * 0.1
 let force_height = height * 0.8
 let MAX_LIST_LEN = 10
 
 let colormap_node_type = {
-    "keyword": "blue",
+    "keyword": "#1c7887",
     "author": "grey",
     "location": "orange",
 }
@@ -30,6 +30,11 @@ let colormap_node_tag = {
     "normal": null,
     "clicked": "red",
 }
+let colormap_list = {
+    "location": "#8dd3c7",
+    "author": "#80b1d3"
+}
+let color_link = "#8dd3c7"
 
 let svg_authorlist = div_authorlist.append("svg")
     .attr("id","svg_authorlist")
@@ -89,7 +94,7 @@ function draw_authorlist(data_authorlist){
             .attr("ry", eachheight*0.1)
             .attr("width", eachwidth)
             .attr("height", eachheight)
-            .style("fill", "grey")
+            .style("fill", colormap_list["author"])
             .attr("name", aut)
             .on("click", ()=>{
                 current_clicked_list = data_authorlist[aut]["force_node"]
@@ -143,7 +148,7 @@ function draw_locationlist(data_locationlist){
             .attr("ry", eachheight*0.1)
             .attr("width", eachwidth)
             .attr("height", eachheight)
-            .style("fill", "orange")
+            .style("fill", colormap_list["location"])
             .on("click", ()=>{
                 current_clicked_list = data_locationlist[loc]["force_node"]
                 list_info.select("#list_name").text("name: "+loc)
@@ -173,6 +178,7 @@ function set_force_graph_link(){
         let target = lk[0], source = lk[1], value = data_all_links[linkkey].value
         target = find_conbine(target)
         source = find_conbine(source)
+        if (target in keyword_blacklist || source in keyword_blacklist) continue
         if(target>source){
             let t = target
             target = source
@@ -246,9 +252,11 @@ function set_force_graph_node(){
         data_locationlist[loc]["force_node"] = tmp
     }
     for(let kw in data_keywordlist){
+        let type = "keyword"
+        if(data_keywordlist[kw].hasOwnProperty("type")) type = data_keywordlist[kw].type
         let tmp = {
             "name": kw,
-            "type": "keyword",
+            "type": type,
             "show": true,
             "value": data_keywordlist[kw]["value"],
         }
@@ -285,7 +293,7 @@ function force_ticked(){
             if(d.hasOwnProperty("type") && d.type=="tag"){
                 return data_tag[d["tag-name"]].color
             }
-            return "grey"
+            return color_link
         })
     svg_force_nodes
         .attr("transform", (d, i)=>{
@@ -362,7 +370,7 @@ function refresh_force(){
             if(d.hasOwnProperty("type") && d.type=="tag"){
                 return data_tag[d["tag-name"]].color
             }
-            return "grey"
+            return color_link
         })
         .attr("stroke-width", (d)=>{
             if (d.value>100) return 1

@@ -11,16 +11,36 @@ let FILTER_AUTHOR_MIN = 40
 let FILTER_KEYWORD_MIN = 20
 let FILTER_LINK_MIN = 10
 
-d3.json("http://localhost:8080/data/parse_ner.json").then(function(data){
+// let keyword_pos_set = {"VERB":1, "NOUN":1, "ADJ":1, "PROPN":1, "ADV":1}
+let keyword_pos_set = {"VERB":1, "NOUN":1, "ADJ":1}
+let ner_set = {"AT":1, "RT":1, "CARDINAL":1, "TIME":1, "DATE":1, "ORDINAL":1, "PERCENT":1, "MONEY":1}
+
+let keyword_blacklist = {}
+let author_blacklist = {}//{"@KronosQuoth":1, "@Clevvah4Evah":1}
+
 // d3.json("http://localhost:8080/VAST2021_MC1_MC3/MC3_project/MC3_utf8/ner/parse_ner.json").then(function(data){
-// d3.json("http://localhost:8080/VAST2021_2021_7_6/MC3_project/MC3_utf8/ner/parse_ner.json").then(function(data){  
+d3.json("./data/parse_ner.json").then(function(data){  
     // console.log(data)
     for(let itemID in data){
         data_keyword_mb[itemID] = []
         item = data[itemID]
-        for(let i=0; i<item.token.length; i+=1){
-            let kw = item.token[i].toLowerCase()
-            if(item.pos[i] in {"VERB":1, "NOUN":1, "ADJ":1, "PROPN":1, "ADV":1}){
+        // for(let i=0; i<item.token.length; i+=1){
+        //     let kw = item.token[i].toLowerCase()
+        //     if(item.pos[i] in keyword_pos_set){
+        //         data_keyword_mb[itemID].push(kw)
+        //         let t_kw
+        //         if(data_all_keywordlist.hasOwnProperty(kw)){
+        //             t_kw = data_all_keywordlist[kw]
+        //         }else{
+        //             t_kw = {"value": 0}
+        //         }
+        //         t_kw.value += 1
+        //         data_all_keywordlist[kw] = t_kw
+        //     }
+        // }
+        for(let i=0; i<item.ner_token.length; i+=1){
+            let kw = item.ner_token[i][0].toLowerCase()
+            if (item.ner_token[i][1] in keyword_pos_set){
                 data_keyword_mb[itemID].push(kw)
                 let t_kw
                 if(data_all_keywordlist.hasOwnProperty(kw)){
@@ -32,16 +52,30 @@ d3.json("http://localhost:8080/data/parse_ner.json").then(function(data){
                 data_all_keywordlist[kw] = t_kw
             }
         }
-        // for(let nerI in item.ner){
-        //     data_keyword_mb[itemID].push(...item.ner[nerI])
-        // }
-        // if(itemID>5) break
+        for(let ner in item.ner){
+            // console.log(ner)
+            if(!(ner in ner_set)){
+                // console.log(item.ner[ner])
+                for(let i=0; i<item.ner[ner].length; i+=1){
+                    let kw = item.ner[ner][i].toLowerCase()
+                    // console.log(kw)
+                    data_keyword_mb[itemID].push(kw)
+                    let t_kw
+                    if(data_all_keywordlist.hasOwnProperty(kw)){
+                        t_kw = data_all_keywordlist[kw]
+                    }else{
+                        t_kw = {"value": 0}
+                    }
+                    t_kw.value += 1
+                    data_all_keywordlist[kw] = t_kw
+                }
+            }
+        }
     }
     console.log("parse_ner file loaded")
     // parse_ner_file_loaded = true
 }).then(()=>{
-    d3.json("http://localhost:8080/data/microblog.json").then(function(data){
-    //d3.json("http://localhost:8080/VAST2021_MC1_MC3/MC3_project/MC3_utf8/microblog.json").then(function(data){
+    d3.json("./data/microblog.json").then(function(data){
         data_mb = data
         for(let itemID in data){
             item = data[itemID]
@@ -88,6 +122,7 @@ function filter_all_link(){
         let aut = data_mb[mbID].author
         if (aut=="") aut = "ccdata"
         aut = "@" + aut
+        if(aut in author_blacklist) continue
         for(let kwID in kwlist){
             let kw = kwlist[kwID]
             let linkkey = aut + "," + kw
